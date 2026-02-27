@@ -1,15 +1,12 @@
 // prisma/schema.prisma
 
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
+  engineType = "library"
 }
 
 datasource db {
-  provider  = "postgresql"
-  // Uses connection pooling for standard queries
-  url       = env("POSTGRES_PRISMA_URL")
-  // Uses a direct connection for migrations
-  directUrl = env("POSTGRES_URL_NON_POOLING")
+  provider = "sqlite"
 }
 
 model Participant {
