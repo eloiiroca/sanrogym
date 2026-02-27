@@ -1,0 +1,32 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  // Uses connection pooling for standard queries
+  url       = env("POSTGRES_PRISMA_URL")
+  // Uses a direct connection for migrations
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model Participant {
+  id        String    @id @default(uuid())
+  name      String
+  createdAt DateTime  @default(now())
+  
+  // Implicit many-to-many relation
+  sessions  Session[] 
+}
+
+model Session {
+  id            String        @id @default(uuid())
+  sessionNumber Int           @unique
+  date          DateTime
+  createdAt     DateTime      @default(now())
+  
+  // Implicit many-to-many relation
+  participants  Participant[] 
+}
