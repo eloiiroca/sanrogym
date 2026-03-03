@@ -26,5 +26,13 @@ Sanrogym is a lightweight, mobile-friendly web application designed to track and
 
 ### 3.3. Dashboard & Data Visualization
 * **All-Time Leaderboard:** Ranking of participants by total sessions attended.
-* **Streaks:** Calculate and display the "Current Streak" (who is currently on fire) and "Longest Streak" (all-time record).
+* **Streaks:** Calculate and display:
+    * "Current Hot Streak" (consecutive attendances).
+    * "Current Cold Streak" (consecutive absences, to motivate re-engagement).
+    * "Longest Streak" (all-time record).
 * **Monthly Recap:** Chart showing attendance volume month over month.
+
+### 3.4. Monthly Ranking
+* **Monthly Leaderboard:** A separate ranking showing attendance per participant for a specific month.
+* **MVP Award:** Automatically identify and highlight the top attendant(s) for the selected month as "Monthly MVP".
+* **History Browsing:** Ability to toggle between the current month and past months' rankings.

@@ -2,6 +2,14 @@
 
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { getSession } from "@/lib/auth";
+
+async function checkAuth() {
+  const session = await getSession();
+  if (!session || session.role !== "admin") {
+    throw new Error("Unauthorized");
+  }
+}
 
 export async function getParticipants() {
   try {
@@ -23,6 +31,7 @@ export async function getParticipants() {
 
 export async function createParticipant(name: string) {
   try {
+    await checkAuth();
     const participant = await prisma.participant.create({
       data: { name },
     });
@@ -37,6 +46,7 @@ export async function createParticipant(name: string) {
 
 export async function updateParticipant(id: string, name: string) {
   try {
+    await checkAuth();
     const participant = await prisma.participant.update({
       where: { id },
       data: { name },
@@ -52,6 +62,7 @@ export async function updateParticipant(id: string, name: string) {
 
 export async function deleteParticipant(id: string) {
   try {
+    await checkAuth();
     await prisma.participant.delete({
       where: { id },
     });

@@ -1,7 +1,7 @@
 import { getParticipants } from "@/app/actions/participants";
 import { getSessions } from "@/app/actions/sessions";
 import { calculateStreaks, ParticipantWithSessions, SessionWithParticipants } from "@/lib/streaks";
-import { DashboardClient, DashboardParticipant } from "./dashboard-client";
+import { DashboardClient, DashboardParticipant, MonthlyRankingData } from "./dashboard-client";
 import { Dumbbell } from "lucide-react";
 
 export default async function Home() {
@@ -15,25 +15,44 @@ export default async function Home() {
     sessions as unknown as SessionWithParticipants[]
   );
 
-  // Formatting monthly recap data
-  // Group sessions by month (Year-Month)
+  // Formatting monthly data
   const monthCounts: Record<string, number> = {};
-  (sessions as { date: Date }[]).forEach((s) => {
-    const month = new Date(s.date).toLocaleDateString(undefined, {
+  const monthlyRankings: Record<string, MonthlyRankingData[]> = {};
+
+  (sessions as (SessionWithParticipants & { date: Date })[]).forEach((s) => {
+    const monthKey = new Date(s.date).toLocaleDateString(undefined, {
       month: "short",
       year: "numeric",
     });
-    monthCounts[month] = (monthCounts[month] || 0) + 1;
+    
+    // Total sessions per month
+    monthCounts[monthKey] = (monthCounts[monthKey] || 0) + 1;
+
+    // Attendance per participant per month
+    if (!monthlyRankings[monthKey]) {
+      monthlyRankings[monthKey] = participants.map(p => ({
+        id: p.id,
+        name: p.name,
+        count: 0
+      }));
+    }
+
+    s.participants.forEach(att => {
+      const participantEntry = monthlyRankings[monthKey].find(p => p.id === att.id);
+      if (participantEntry) {
+        participantEntry.count += 1;
+      }
+    });
   });
 
-  // Sort months chronologically
+  // Sort months chronologically for the chart
   const sortedMonths = Object.keys(monthCounts).sort((a, b) => {
     const dateA = new Date(a);
     const dateB = new Date(b);
     return dateA.getTime() - dateB.getTime();
   });
 
-  const monthlyData = sortedMonths.map((month) => ({
+  const monthlyRecap = sortedMonths.map((month) => ({
     month,
     count: monthCounts[month],
   }));
@@ -73,7 +92,8 @@ export default async function Home() {
       ) : (
         <DashboardClient
           participants={streakData as unknown as DashboardParticipant[]}
-          monthlyData={monthlyData}
+          monthlyData={monthlyRecap}
+          monthlyRankings={monthlyRankings}
         />
       )}
     </div>

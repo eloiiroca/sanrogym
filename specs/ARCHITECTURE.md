@@ -4,7 +4,7 @@
 * **Framework:** Next.js (App Router) with React Compiler enabled.
 * **Language:** TypeScript.
 * **Styling:** Tailwind CSS.
-* **Database:** Vercel Postgres.
+* **Database:** Turso (LibSQL).
 * **ORM:** Prisma.
 * **Deployment:** Vercel.
 

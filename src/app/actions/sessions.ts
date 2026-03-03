@@ -2,6 +2,14 @@
 
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { getSession } from "@/lib/auth";
+
+async function checkAuth() {
+  const session = await getSession();
+  if (!session || session.role !== "admin") {
+    throw new Error("Unauthorized");
+  }
+}
 
 export async function getSessions() {
   try {
@@ -24,6 +32,7 @@ export async function getSessions() {
 
 export async function createSession(date: Date, participantIds: string[]) {
   try {
+    await checkAuth();
     // Get the highest current session number
     const lastSession = await prisma.session.findFirst({
       orderBy: { sessionNumber: "desc" },
@@ -60,6 +69,7 @@ export async function updateSession(
   participantIds: string[]
 ) {
   try {
+    await checkAuth();
     const session = await prisma.session.update({
       where: { id },
       data: {
@@ -84,6 +94,7 @@ export async function updateSession(
 
 export async function deleteSession(id: string) {
   try {
+    await checkAuth();
     await prisma.session.delete({
       where: { id },
     });

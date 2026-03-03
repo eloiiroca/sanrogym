@@ -34,6 +34,19 @@ export function calculateStreaks(
       }
     }
 
+    // Cold Streak calculation (starting from latest group session)
+    let coldStreak = 0;
+    if (currentStreak === 0) {
+      for (let i = 0; i < sortedSessions.length; i++) {
+        const attended = sortedSessions[i].participants.some((att) => att.id === p.id);
+        if (!attended) {
+          coldStreak++;
+        } else {
+          break;
+        }
+      }
+    }
+
     // Longest Streak calculation (anywhere in history)
     // We iterate from oldest to newest for easier logic
     const chronologicalSessions = [...sortedSessions].reverse();
@@ -55,6 +68,7 @@ export function calculateStreaks(
       ...p,
       currentStreak,
       longestStreak,
+      coldStreak,
     };
   });
 }
