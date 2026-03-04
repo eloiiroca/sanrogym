@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sanrogym | Segueix i gamifica els teus entrenaments",
-  description: "Registra l'assistència al gimnàs, competeix amb amics i manté la teva ratxa.",
+  title: "Sanrogym",
+  description: "Forjant espartans en un garatge",
 };
 
 export default function RootLayout({
