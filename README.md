@@ -41,11 +41,19 @@ Sanrogym is a lightweight, mobile-friendly web application designed to track and
    npm install
    ```
 
-3. **Initialize the local database:**
-   ```bash
-   npx prisma db push
-   ```
-   *This creates a local `dev.db` SQLite file and syncs it with the schema.*
+### Database Deployment (Turso)
+
+1.  **Generate Migration Locally:**
+    ```bash
+    npx prisma migrate dev
+    ```
+    *This creates a new migration file in `prisma/migrations`.*
+
+2.  **Deploy to Turso:**
+    ```bash
+    npm run db:deploy:turso
+    ```
+    *This pushes the latest migration to your Turso database.*
 
 4. **Run the development server:**
    ```bash

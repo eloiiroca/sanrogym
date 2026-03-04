@@ -33,15 +33,15 @@ export default function LoginPage() {
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
             <Lock className="h-6 w-6 text-primary" />
           </div>
-          <CardTitle className="text-2xl font-bold">Admin Access</CardTitle>
+          <CardTitle className="text-2xl font-bold">Accés Administrador</CardTitle>
           <CardDescription>
-            Enter the password to manage Sanrogym sessions and roster.
+            Introdueix la contrasenya per gestionar les sessions i els amics de Sanrogym.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Contrasenya</Label>
               <Input
                 id="password"
                 name="password"
@@ -55,12 +55,12 @@ export default function LoginPage() {
               <p className="text-sm font-medium text-destructive">{error}</p>
             )}
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Verifying..." : "Login"}
+              {loading ? "Verificant..." : "Entrar"}
             </Button>
           </form>
           <div className="mt-6 flex items-center justify-center gap-2 text-xs text-muted-foreground">
             <Dumbbell className="h-3 w-3" />
-            <span>SANROGYM ADMIN</span>
+            <span>ADMINISTRACIÓ SANROGYM</span>
           </div>
         </CardContent>
       </Card>

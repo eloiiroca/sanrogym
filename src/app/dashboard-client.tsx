@@ -99,7 +99,7 @@ export function DashboardClient({
         {/* All-Time Leaderboard */}
         <Card className="border-primary/20 bg-card/50 backdrop-blur-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xl font-bold">All-Time Leaderboard</CardTitle>
+            <CardTitle className="text-xl font-bold">Rànquing General</CardTitle>
             <Trophy className="h-5 w-5 text-primary" />
           </CardHeader>
           <CardContent>
@@ -130,7 +130,7 @@ export function DashboardClient({
         {/* Monthly Ranking Browser */}
         <Card className="border-primary/20 bg-card/50 backdrop-blur-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xl font-bold">Monthly Ranking</CardTitle>
+            <CardTitle className="text-xl font-bold">Rànquing Mensual</CardTitle>
             <div className="flex items-center gap-1">
               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handlePrevMonth} disabled={selectedMonthIdx === availableMonths.length - 1}>
                 <ChevronLeft className="h-4 w-4" />
@@ -171,13 +171,13 @@ export function DashboardClient({
         {/* Hot Streaks */}
         <Card className="border-orange-500/20 bg-card/50 backdrop-blur-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xl font-bold">Hot Streaks</CardTitle>
+            <CardTitle className="text-xl font-bold">Ratxa de Sessions</CardTitle>
             <Flame className="h-5 w-5 text-orange-500" />
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {hotStreaks.length === 0 ? (
-                <p className="text-sm text-center text-muted-foreground py-4">No one on fire yet!</p>
+                <p className="text-sm text-center text-muted-foreground py-4">Encara ningú està on fire!</p>
               ) : (
                 hotStreaks.map((p, idx) => (
                   <motion.div key={p.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.05 }} className="flex items-center justify-between rounded-lg bg-zinc-900/50 p-3">
@@ -193,7 +193,7 @@ export function DashboardClient({
                     </div>
                     <div className="flex flex-col items-end">
                       <span className="text-xs font-bold text-orange-500">{p.currentStreak} sessions</span>
-                      <span className="text-[8px] text-muted-foreground uppercase tracking-tighter">Best: {p.longestStreak}</span>
+                      <span className="text-[8px] text-muted-foreground uppercase tracking-tighter">Millor: {p.longestStreak}</span>
                     </div>
                   </motion.div>
                 ))
@@ -205,13 +205,13 @@ export function DashboardClient({
         {/* Cold Streaks */}
         <Card className="border-blue-500/20 bg-card/50 backdrop-blur-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xl font-bold">Cold Streaks</CardTitle>
+            <CardTitle className="text-xl font-bold">Ratxa de Pechofriadas</CardTitle>
             <Snowflake className="h-5 w-5 text-blue-400" />
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {coldStreaks.length === 0 ? (
-                <p className="text-sm text-center text-muted-foreground py-4">Everyone is coming to the gym! 🏋️</p>
+                <p className="text-sm text-center text-muted-foreground py-4">Tothom està venint al gimnàs! 🏋️</p>
               ) : (
                 coldStreaks.map((p, idx) => (
                   <motion.div key={p.id} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.05 }} className="flex items-center justify-between rounded-lg bg-zinc-900/50 p-3">
@@ -222,8 +222,8 @@ export function DashboardClient({
                       </span>
                     </div>
                     <div className="flex flex-col items-end">
-                      <span className="text-xs font-bold text-blue-400">{p.coldStreak} sessions missed</span>
-                      <span className="text-[8px] text-muted-foreground uppercase tracking-tighter">Time to come back!</span>
+                      <span className="text-xs font-bold text-blue-400">{p.coldStreak} sessions perdudes</span>
+                      <span className="text-[8px] text-muted-foreground uppercase tracking-tighter">És hora de tornar!</span>
                     </div>
                   </motion.div>
                 ))
@@ -238,8 +238,8 @@ export function DashboardClient({
         <div className="flex items-center gap-2 mb-6">
           <CalendarDays className="h-5 w-5 text-primary" />
           <div>
-            <h3 className="text-lg font-bold">Monthly Volume</h3>
-            <p className="text-sm text-muted-foreground">Total group sessions per month.</p>
+            <h3 className="text-lg font-bold">Volum Mensual</h3>
+            <p className="text-sm text-muted-foreground">Sessions totals de grup per mes.</p>
           </div>
         </div>
         <div className="h-64 w-full">

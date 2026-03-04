@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:deploy:turso": "turso db shell sanrogym-db < prisma/migrations/$(ls -r prisma/migrations | grep -v 'migration_lock.toml' | head -n 1)/migration.sql"
   },
   "dependencies": {
     "@libsql/client": "^0.17.0",

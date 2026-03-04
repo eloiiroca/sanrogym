@@ -20,7 +20,7 @@ export default async function Home() {
   const monthlyRankings: Record<string, MonthlyRankingData[]> = {};
 
   (sessions as (SessionWithParticipants & { date: Date })[]).forEach((s) => {
-    const monthKey = new Date(s.date).toLocaleDateString(undefined, {
+    const monthKey = new Date(s.date).toLocaleDateString("ca-ES", {
       month: "short",
       year: "numeric",
     });
@@ -65,16 +65,16 @@ export default async function Home() {
             Sanrogym
           </h1>
           <p className="mt-2 text-lg text-muted-foreground">
-            The group gym attendance tracker. Stay consistent.
+            Forjant espartans en un garatge. No et rendeixis.
           </p>
         </div>
         <div className="flex flex-col items-end gap-1">
           <div className="flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-primary font-bold">
             <Dumbbell className="h-5 w-5" />
-            <span>{sessions.length} sessions logged</span>
+            <span>{sessions.length} sessions registrades</span>
           </div>
           <span className="text-[10px] text-muted-foreground uppercase tracking-widest px-2">
-            All-time total
+            Total històric
           </span>
         </div>
       </div>
@@ -83,9 +83,9 @@ export default async function Home() {
         <div className="flex flex-col items-center justify-center py-20 text-center space-y-4 rounded-xl border-2 border-dashed border-primary/20 bg-primary/5">
           <Dumbbell className="h-16 w-16 text-primary animate-pulse" />
           <div className="space-y-2">
-            <h2 className="text-2xl font-bold">No sessions logged yet!</h2>
+            <h2 className="text-2xl font-bold">Encara no hi ha sessions!</h2>
             <p className="max-w-md text-muted-foreground">
-              Go to the Sessions tab to log your first group session and start your streak.
+              Vés a la pestanya de Sessions per registrar la primera sessió de grup i començar la teva ratxa.
             </p>
           </div>
         </div>

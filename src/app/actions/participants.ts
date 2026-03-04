@@ -40,7 +40,7 @@ export async function createParticipant(name: string) {
     return { success: true, participant };
   } catch (error) {
     console.error("Error creating participant:", error);
-    return { success: false, error: "Failed to create participant" };
+    return { success: false, error: "Error en crear el participant" };
   }
 }
 
@@ -56,7 +56,7 @@ export async function updateParticipant(id: string, name: string) {
     return { success: true, participant };
   } catch (error) {
     console.error("Error updating participant:", error);
-    return { success: false, error: "Failed to update participant" };
+    return { success: false, error: "Error en actualitzar el participant" };
   }
 }
 
@@ -72,6 +72,6 @@ export async function deleteParticipant(id: string) {
     return { success: true };
   } catch (error) {
     console.error("Error deleting participant:", error);
-    return { success: false, error: "Failed to delete participant" };
+    return { success: false, error: "Error en eliminar el participant" };
   }
 }

@@ -69,7 +69,7 @@ export function RosterClient({
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm("Are you sure you want to remove this participant?")) {
+    if (confirm("Segur que vols eliminar aquest participant?")) {
       startTransition(async () => {
         await deleteParticipant(id);
       });
@@ -81,7 +81,7 @@ export function RosterClient({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Users className="h-6 w-6 text-primary" />
-          <h1 className="text-2xl font-bold tracking-tight">Roster</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Amics</h1>
         </div>
         <Dialog
           open={open}
@@ -96,29 +96,29 @@ export function RosterClient({
           <DialogTrigger asChild>
             <Button size="sm" className="gap-2">
               <Plus className="h-4 w-4" />
-              Add Friend
+              Afegir Amic
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>
-                {editParticipant ? "Edit Participant" : "Add New Participant"}
+                {editParticipant ? "Editar Participant" : "Afegir Nou Participant"}
               </DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="name">Nom</Label>
                 <Input
                   id="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Enter name..."
+                  placeholder="Introdueix el nom..."
                   autoFocus
                 />
               </div>
               <DialogFooter>
                 <Button type="submit" disabled={isPending}>
-                  {isPending ? "Saving..." : "Save Changes"}
+                  {isPending ? "Guardant..." : "Guardar Canvis"}
                 </Button>
               </DialogFooter>
             </form>
@@ -130,9 +130,9 @@ export function RosterClient({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead className="text-center">Total Sessions</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>Nom</TableHead>
+              <TableHead className="text-center">Sessions Totals</TableHead>
+              <TableHead className="text-right">Accions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -142,7 +142,7 @@ export function RosterClient({
                   colSpan={3}
                   className="h-24 text-center text-muted-foreground"
                 >
-                  No participants found. Add your first friend!
+                  No s'han trobat participants. Afegeix el teu primer amic!
                 </TableCell>
               </TableRow>
             ) : (

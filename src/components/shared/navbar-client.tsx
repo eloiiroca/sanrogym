@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 
 const navItems = [
   {
-    name: "Dashboard",
+    name: "Resum",
     href: "/",
     icon: LayoutDashboard,
   },
@@ -19,7 +19,7 @@ const navItems = [
     icon: Dumbbell,
   },
   {
-    name: "Roster",
+    name: "Amics",
     href: "/roster",
     icon: Users,
   },
@@ -62,14 +62,14 @@ export function NavbarClient({ isAdmin }: { isAdmin: boolean }) {
               <form action={logoutAction}>
                 <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-primary">
                   <LogOut className="h-4 w-4" />
-                  Logout
+                  Sortir
                 </Button>
               </form>
             ) : (
               <Link href="/login">
                 <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-primary">
                   <LogIn className="h-4 w-4" />
-                  Login
+                  Entrar
                 </Button>
               </Link>
             )}
@@ -103,7 +103,7 @@ export function NavbarClient({ isAdmin }: { isAdmin: boolean }) {
             <form action={logoutAction} className="flex flex-col items-center">
               <button type="submit" className="flex flex-col items-center gap-1 px-3 py-1 text-xs font-medium text-muted-foreground">
                 <LogOut className="h-6 w-6" />
-                Logout
+                Sortir
               </button>
             </form>
           ) : (
@@ -115,7 +115,7 @@ export function NavbarClient({ isAdmin }: { isAdmin: boolean }) {
               )}
             >
               <LogIn className="h-6 w-6" />
-              Login
+              Entrar
             </Link>
           )}
         </div>

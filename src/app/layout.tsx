@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sanrogym | Track & Gamify Your Gym Sessions",
-  description: "Track gym attendance, compete with friends, and maintain your streak.",
+  title: "Sanrogym | Segueix i gamifica els teus entrenaments",
+  description: "Registra l'assistència al gimnàs, competeix amb amics i manté la teva ratxa.",
 };
 
 export default function RootLayout({

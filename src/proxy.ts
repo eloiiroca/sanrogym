@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { decrypt } from "@/lib/auth";
 
-const protectedRoutes = ["/sessions", "/roster"];
+const protectedRoutes = ["/roster"];
 
 export default async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
@@ -30,5 +30,5 @@ export default async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/sessions/:path*", "/roster/:path*"],
+  matcher: ["/roster/:path*"],
 };

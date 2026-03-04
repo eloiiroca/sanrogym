@@ -13,7 +13,7 @@ export async function loginAction(formData: FormData) {
     revalidatePath("/");
     redirect("/");
   } else {
-    return { error: "Invalid password" };
+    return { error: "Contrasenya incorrecta" };
   }
 }
 

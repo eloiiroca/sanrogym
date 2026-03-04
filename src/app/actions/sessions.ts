@@ -59,7 +59,7 @@ export async function createSession(date: Date, participantIds: string[]) {
     return { success: true, session };
   } catch (error) {
     console.error("Error creating session:", error);
-    return { success: false, error: "Failed to log session" };
+    return { success: false, error: "No s'ha pogut registrar la sessió" };
   }
 }
 
@@ -88,7 +88,7 @@ export async function updateSession(
     return { success: true, session };
   } catch (error) {
     console.error("Error updating session:", error);
-    return { success: false, error: "Failed to update session" };
+    return { success: false, error: "Error en actualitzar la sessió" };
   }
 }
 
@@ -103,6 +103,6 @@ export async function deleteSession(id: string) {
     return { success: true };
   } catch (error) {
     console.error("Error deleting session:", error);
-    return { success: false, error: "Failed to delete session" };
+    return { success: false, error: "Error en eliminar la sessió" };
   }
 }
