@@ -20,10 +20,8 @@ export default async function Home() {
   const monthlyRankings: Record<string, MonthlyRankingData[]> = {};
 
   (sessions as (SessionWithParticipants & { date: Date })[]).forEach((s) => {
-    const monthKey = new Date(s.date).toLocaleDateString("ca-ES", {
-      month: "short",
-      year: "numeric",
-    });
+    const d = new Date(s.date);
+    const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
     
     // Total sessions per month
     monthCounts[monthKey] = (monthCounts[monthKey] || 0) + 1;
@@ -46,16 +44,19 @@ export default async function Home() {
   });
 
   // Sort months chronologically for the chart
-  const sortedMonths = Object.keys(monthCounts).sort((a, b) => {
-    const dateA = new Date(a);
-    const dateB = new Date(b);
-    return dateA.getTime() - dateB.getTime();
-  });
+  const sortedMonths = Object.keys(monthCounts).sort();
 
-  const monthlyRecap = sortedMonths.map((month) => ({
-    month,
-    count: monthCounts[month],
-  }));
+  const monthlyRecap = sortedMonths.map((month) => {
+    const [year, m] = month.split('-').map(Number);
+    const displayMonth = new Date(year, m - 1).toLocaleDateString("ca-ES", {
+      month: "short",
+      year: "numeric",
+    });
+    return {
+      month: displayMonth,
+      count: monthCounts[month],
+    };
+  });
 
   return (
     <div className="container py-8 px-4 md:px-6">

@@ -46,13 +46,20 @@ export function DashboardClient({
   monthlyRankings: Record<string, MonthlyRankingData[]>;
 }) {
   const availableMonths = useMemo(() => {
-    return Object.keys(monthlyRankings).sort((a, b) => {
-      return new Date(b).getTime() - new Date(a).getTime();
-    });
+    return Object.keys(monthlyRankings).sort().reverse();
   }, [monthlyRankings]);
 
   const [selectedMonthIdx, setSelectedMonthIdx] = useState(0);
   const currentMonthKey = availableMonths[selectedMonthIdx];
+
+  const displayMonthName = useMemo(() => {
+    if (!currentMonthKey) return "";
+    const [year, month] = currentMonthKey.split("-").map(Number);
+    return new Date(year, month - 1).toLocaleDateString("ca-ES", {
+      month: "short",
+      year: "numeric",
+    });
+  }, [currentMonthKey]);
 
   const currentMonthlyRanking = useMemo(() => {
     if (!currentMonthKey) return [];
@@ -135,7 +142,7 @@ export function DashboardClient({
               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handlePrevMonth} disabled={selectedMonthIdx === availableMonths.length - 1}>
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <span className="text-xs font-bold min-w-[70px] text-center">{currentMonthKey}</span>
+              <span className="text-xs font-bold min-w-[70px] text-center">{displayMonthName}</span>
               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleNextMonth} disabled={selectedMonthIdx === 0}>
                 <ChevronRight className="h-4 w-4" />
               </Button>
