@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { decrypt } from "@/lib/auth";
 
-const protectedRoutes = ["/roster"];
+const protectedRoutes = ["/roster", "/admin/seasons"];
 
 export default async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
@@ -22,7 +22,7 @@ export default async function middleware(request: NextRequest) {
     if (payload.role !== "admin") {
       return NextResponse.redirect(new URL("/login", request.url));
     }
-  } catch (error) {
+  } catch {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
@@ -30,5 +30,5 @@ export default async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/roster/:path*"],
+  matcher: ["/roster/:path*", "/admin/seasons/:path*"],
 };

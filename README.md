@@ -7,6 +7,7 @@ Sanrogym is a lightweight, mobile-friendly web application designed to track and
 - **All-Time Leaderboard:** Ranking of participants by total sessions attended.
 - **Fire Streaks:** Automated calculation of "Current Streak" and "Longest Streak" for every participant.
 - **Monthly Recap:** Interactive bar charts showing attendance volume month over month.
+- **Seasons:** Keep historical attendance while starting new rankings and streaks from an active season. Session numbers remain global across seasons.
 - **Session Logging:** Easy mobile-first interface to log group sessions with multi-select participant attendance.
 - **Roster Management:** Simple CRUD for managing the friend group.
 - **Premium UI:** Dark-mode first design with neon accents, smooth animations, and a polished dashboard.
@@ -59,6 +60,8 @@ Sanrogym is a lightweight, mobile-friendly web application designed to track and
    ```bash
    npm run dev
    ```
+
+On a local development database, Sanrogym creates an inactive `Temporada 2` if only one season exists, so the season selector can be tried without changing the active season. Admins can rename, activate, and manage seasons at `/admin/seasons`.
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 

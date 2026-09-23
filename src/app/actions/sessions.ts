@@ -3,6 +3,8 @@
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/auth";
+import { getSeasonIdForSelection, ensureActiveSeason } from "@/lib/seasons";
+import type { SeasonSelection } from "@/lib/season-types";
 
 async function checkAuth() {
   const session = await getSession();
@@ -11,9 +13,11 @@ async function checkAuth() {
   }
 }
 
-export async function getSessions() {
+export async function getSessions(selection?: SeasonSelection) {
   try {
+    const seasonId = await getSeasonIdForSelection(selection);
     return await prisma.session.findMany({
+      ...(seasonId === undefined ? {} : { where: { seasonId } }),
       orderBy: { sessionNumber: "desc" },
       include: {
         participants: {
@@ -33,25 +37,33 @@ export async function getSessions() {
 export async function createSession(date: Date, participantIds: string[]) {
   try {
     await checkAuth();
-    // Get the highest current session number
-    const lastSession = await prisma.session.findFirst({
-      orderBy: { sessionNumber: "desc" },
-      select: { sessionNumber: true },
-    });
+    await ensureActiveSeason();
 
-    const nextSessionNumber = (lastSession?.sessionNumber ?? 0) + 1;
+    const session = await prisma.$transaction(async (tx) => {
+      const activeSeason = await tx.season.findFirst({
+        where: { isActive: true },
+        select: { id: true },
+      });
+      if (!activeSeason) throw new Error("No hi ha cap temporada activa");
 
-    const session = await prisma.session.create({
-      data: {
-        sessionNumber: nextSessionNumber,
-        date: date,
-        participants: {
-          connect: participantIds.map((id) => ({ id })),
+      const lastSession = await tx.session.findFirst({
+        orderBy: { sessionNumber: "desc" },
+        select: { sessionNumber: true },
+      });
+
+      return tx.session.create({
+        data: {
+          sessionNumber: (lastSession?.sessionNumber ?? 0) + 1,
+          date,
+          seasonId: activeSeason.id,
+          participants: {
+            connect: participantIds.map((id) => ({ id })),
+          },
         },
-      },
-      include: {
-        participants: true,
-      },
+        include: {
+          participants: true,
+        },
+      });
     });
 
     revalidatePath("/sessions");

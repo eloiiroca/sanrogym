@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import {
   createSession,
   updateSession,
@@ -17,12 +18,14 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -41,37 +44,70 @@ interface Session {
   participants: Participant[];
 }
 
+function formatSessionDate(date: Date) {
+  return new Date(date).toLocaleDateString("ca-ES", {
+    weekday: "short",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
 export function SessionsClient({
   sessions,
   participants,
   isAdmin,
+  activeSeasonName,
+  seasonSelection,
 }: {
   sessions: Session[];
   participants: Participant[];
   isAdmin: boolean;
+  activeSeasonName: string;
+  seasonSelection: number | "all";
 }) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
   const [editSession, setEditSession] = useState<Session | null>(null);
+  const [sessionToDelete, setSessionToDelete] = useState<Session | null>(null);
   const [date, setDate] = useState("");
   const [selectedParticipants, setSelectedParticipants] = useState<string[]>(
     []
   );
+  const [formError, setFormError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!date || selectedParticipants.length === 0) return;
+    setFormError(null);
 
     startTransition(async () => {
-      if (editSession) {
-        await updateSession(editSession.id, new Date(date), selectedParticipants);
-      } else {
-        await createSession(new Date(date), selectedParticipants);
+      const result = editSession
+        ? await updateSession(editSession.id, new Date(date), selectedParticipants)
+        : await createSession(new Date(date), selectedParticipants);
+      if (!result.success) {
+        setFormError(result.error ?? "No s'ha pogut desar la sessió.");
+        return;
       }
+
+      const createdSeasonId =
+        result.success && "session" in result
+          ? result.session?.seasonId
+          : undefined;
       setOpen(false);
       setDate("");
       setSelectedParticipants([]);
       setEditSession(null);
+
+      if (
+        !editSession &&
+        createdSeasonId !== undefined &&
+        seasonSelection !== "all" &&
+        seasonSelection !== createdSeasonId
+      ) {
+        router.replace(`/sessions?season=${createdSeasonId}`, { scroll: false });
+      }
     });
   };
 
@@ -82,12 +118,13 @@ export function SessionsClient({
     setOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm("Segur que vols eliminar aquesta sessió?")) {
-      startTransition(async () => {
-        await deleteSession(id);
-      });
-    }
+  const handleDelete = () => {
+    if (!sessionToDelete) return;
+
+    startTransition(async () => {
+      await deleteSession(sessionToDelete.id);
+      setSessionToDelete(null);
+    });
   };
 
   const toggleParticipant = (id: string) => {
@@ -112,20 +149,26 @@ export function SessionsClient({
                 setEditSession(null);
                 setDate("");
                 setSelectedParticipants([]);
+                setFormError(null);
               }
             }}
           >
             <DialogTrigger asChild>
               <Button size="sm" className="gap-2">
                 <Plus className="h-4 w-4" />
-                Registrar Sessió
+                Registra una sessió
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-md">
               <DialogHeader>
                 <DialogTitle>
-                  {editSession ? "Editar Sessió" : "Registrar Nova Sessió"}
+                  {editSession ? "Edita la sessió" : "Registra una sessió"}
                 </DialogTitle>
+                {!editSession && (
+                  <DialogDescription>
+                    S’afegirà a {activeSeasonName} amb el número global següent.
+                  </DialogDescription>
+                )}
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-6 py-4">
                 <div className="space-y-2">
@@ -167,6 +210,11 @@ export function SessionsClient({
                       Selecciona almenys un assistent
                     </p>
                   )}
+                  {formError && (
+                    <p role="alert" className="text-xs font-medium text-destructive">
+                      {formError}
+                    </p>
+                  )}
                 </div>
 
                 <DialogFooter>
@@ -174,7 +222,7 @@ export function SessionsClient({
                     type="submit"
                     disabled={isPending || selectedParticipants.length === 0}
                   >
-                    {isPending ? "Registrant..." : "Confirmar Sessió"}
+                    {isPending ? "Registrant..." : "Confirma la sessió"}
                   </Button>
                 </DialogFooter>
               </form>
@@ -183,7 +231,74 @@ export function SessionsClient({
         )}
       </div>
 
-      <div className="rounded-md border bg-card overflow-hidden">
+      <div className="space-y-3 md:hidden">
+        {sessions.length === 0 ? (
+          <div className="rounded-xl border bg-card px-4 py-8 text-center text-sm text-muted-foreground">
+            Encara no s’ha registrat cap sessió.
+          </div>
+        ) : (
+          sessions.map((s) => (
+            <article
+              key={s.id}
+              className="rounded-xl border bg-card p-4"
+              aria-label={`Sessió S-${s.sessionNumber}`}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h2 className="font-semibold text-primary">S-{s.sessionNumber}</h2>
+                  <time
+                    className="mt-1 block text-sm text-muted-foreground"
+                    dateTime={new Date(s.date).toISOString()}
+                  >
+                    {formatSessionDate(s.date)}
+                  </time>
+                </div>
+                {isAdmin && (
+                  <div className="flex shrink-0 gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon-lg"
+                      onClick={() => handleEdit(s)}
+                      aria-label={`Edita la sessió S-${s.sessionNumber}`}
+                      title={`Edita la sessió S-${s.sessionNumber}`}
+                    >
+                      <Edit2 className="h-4 w-4" aria-hidden="true" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon-lg"
+                      className="text-destructive hover:text-destructive"
+                      onClick={() => setSessionToDelete(s)}
+                      aria-label={`Elimina la sessió S-${s.sessionNumber}`}
+                      title={`Elimina la sessió S-${s.sessionNumber}`}
+                    >
+                      <Trash2 className="h-4 w-4" aria-hidden="true" />
+                    </Button>
+                  </div>
+                )}
+              </div>
+              <div className="mt-4 border-t pt-3">
+                <p className="mb-2 text-xs font-medium text-muted-foreground">
+                  Assistents ({s.participants.length})
+                </p>
+                {s.participants.length > 0 ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {s.participants.map((p) => (
+                      <Badge key={p.id} variant="secondary">
+                        {p.name}
+                      </Badge>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Cap assistent registrat.</p>
+                )}
+              </div>
+            </article>
+          ))
+        )}
+      </div>
+
+      <div className="hidden overflow-hidden rounded-md border bg-card md:block">
         <Table>
           <TableHeader>
             <TableRow>
@@ -200,7 +315,7 @@ export function SessionsClient({
                   colSpan={isAdmin ? 4 : 3}
                   className="h-24 text-center text-muted-foreground"
                 >
-                  Encara no s'han registrat sessions.
+                  Encara no s’han registrat sessions.
                 </TableCell>
               </TableRow>
             ) : (
@@ -210,12 +325,9 @@ export function SessionsClient({
                     S-{s.sessionNumber}
                   </TableCell>
                   <TableCell>
-                    {new Date(s.date).toLocaleDateString("ca-ES", {
-                      weekday: "short",
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
+                    <time dateTime={new Date(s.date).toISOString()}>
+                      {formatSessionDate(s.date)}
+                    </time>
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
@@ -233,16 +345,20 @@ export function SessionsClient({
                           variant="ghost"
                           size="icon"
                           onClick={() => handleEdit(s)}
+                          aria-label={`Edita la sessió S-${s.sessionNumber}`}
+                          title={`Edita la sessió S-${s.sessionNumber}`}
                         >
-                          <Edit2 className="h-4 w-4" />
+                          <Edit2 className="h-4 w-4" aria-hidden="true" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon"
                           className="text-destructive hover:text-destructive"
-                          onClick={() => handleDelete(s.id)}
+                          onClick={() => setSessionToDelete(s)}
+                          aria-label={`Elimina la sessió S-${s.sessionNumber}`}
+                          title={`Elimina la sessió S-${s.sessionNumber}`}
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-4 w-4" aria-hidden="true" />
                         </Button>
                       </div>
                     </TableCell>
@@ -253,6 +369,22 @@ export function SessionsClient({
           </TableBody>
         </Table>
       </div>
+
+      <ConfirmationDialog
+        open={sessionToDelete !== null}
+        onOpenChange={(nextOpen) => {
+          if (!nextOpen && !isPending) setSessionToDelete(null);
+        }}
+        title={
+          sessionToDelete
+            ? `Elimina la sessió S-${sessionToDelete.sessionNumber}?`
+            : "Elimina la sessió?"
+        }
+        description="La sessió i la seva llista d’assistents s’eliminaran definitivament."
+        confirmLabel="Elimina la sessió"
+        isPending={isPending}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }

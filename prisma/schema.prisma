@@ -24,7 +24,18 @@ model Session {
   sessionNumber Int           @unique
   date          DateTime
   createdAt     DateTime      @default(now())
+  seasonId      Int
+  season        Season        @relation(fields: [seasonId], references: [id], onDelete: Restrict)
   
   // Implicit many-to-many relation
   participants  Participant[] 
+
+  @@index([seasonId])
+}
+
+model Season {
+  id        Int       @id @default(autoincrement())
+  name      String
+  isActive  Boolean   @default(false)
+  sessions  Session[]
 }

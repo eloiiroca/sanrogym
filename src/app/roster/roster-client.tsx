@@ -25,6 +25,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { Edit2, Trash2, Plus, Users } from "lucide-react";
 
 interface Participant {
@@ -44,6 +45,8 @@ export function RosterClient({
   const [editParticipant, setEditParticipant] = useState<Participant | null>(
     null
   );
+  const [participantToDelete, setParticipantToDelete] =
+    useState<Participant | null>(null);
   const [name, setName] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -68,12 +71,13 @@ export function RosterClient({
     setOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm("Segur que vols eliminar aquest participant?")) {
-      startTransition(async () => {
-        await deleteParticipant(id);
-      });
-    }
+  const handleDelete = () => {
+    if (!participantToDelete) return;
+
+    startTransition(async () => {
+      await deleteParticipant(participantToDelete.id);
+      setParticipantToDelete(null);
+    });
   };
 
   return (
@@ -96,13 +100,13 @@ export function RosterClient({
           <DialogTrigger asChild>
             <Button size="sm" className="gap-2">
               <Plus className="h-4 w-4" />
-              Afegir Amic
+              Afegeix un amic
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>
-                {editParticipant ? "Editar Participant" : "Afegir Nou Participant"}
+                {editParticipant ? "Edita el participant" : "Afegeix un participant"}
               </DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4 py-4">
@@ -118,7 +122,7 @@ export function RosterClient({
               </div>
               <DialogFooter>
                 <Button type="submit" disabled={isPending}>
-                  {isPending ? "Guardant..." : "Guardar Canvis"}
+                  {isPending ? "Desant..." : "Desa els canvis"}
                 </Button>
               </DialogFooter>
             </form>
@@ -131,7 +135,7 @@ export function RosterClient({
           <TableHeader>
             <TableRow>
               <TableHead>Nom</TableHead>
-              <TableHead className="text-center">Sessions Totals</TableHead>
+              <TableHead className="text-center">Sessions totals</TableHead>
               <TableHead className="text-right">Accions</TableHead>
             </TableRow>
           </TableHeader>
@@ -142,7 +146,7 @@ export function RosterClient({
                   colSpan={3}
                   className="h-24 text-center text-muted-foreground"
                 >
-                  No s'han trobat participants. Afegeix el teu primer amic!
+                  No s’han trobat participants. Afegeix el teu primer amic!
                 </TableCell>
               </TableRow>
             ) : (
@@ -158,16 +162,20 @@ export function RosterClient({
                         variant="ghost"
                         size="icon"
                         onClick={() => handleEdit(p)}
+                        aria-label={`Edita ${p.name}`}
+                        title={`Edita ${p.name}`}
                       >
-                        <Edit2 className="h-4 w-4" />
+                        <Edit2 className="h-4 w-4" aria-hidden="true" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
                         className="text-destructive hover:text-destructive"
-                        onClick={() => handleDelete(p.id)}
+                        onClick={() => setParticipantToDelete(p)}
+                        aria-label={`Elimina ${p.name}`}
+                        title={`Elimina ${p.name}`}
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4" aria-hidden="true" />
                       </Button>
                     </div>
                   </TableCell>
@@ -177,6 +185,22 @@ export function RosterClient({
           </TableBody>
         </Table>
       </div>
+
+      <ConfirmationDialog
+        open={participantToDelete !== null}
+        onOpenChange={(nextOpen) => {
+          if (!nextOpen && !isPending) setParticipantToDelete(null);
+        }}
+        title="Elimina aquest amic?"
+        description={
+          participantToDelete
+            ? `S’eliminarà ${participantToDelete.name} del llistat d’amics i de les sessions on apareix.`
+            : ""
+        }
+        confirmLabel="Elimina l’amic"
+        isPending={isPending}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }

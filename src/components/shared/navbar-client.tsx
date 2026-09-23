@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, Dumbbell, LogIn, LogOut } from "lucide-react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { LayoutDashboard, Users, Dumbbell, LogIn, LogOut, CalendarRange } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,15 @@ const navItems = [
 
 export function NavbarClient({ isAdmin }: { isAdmin: boolean }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const seasonSelection = searchParams.get("season");
+  const visibleNavItems = isAdmin
+    ? [...navItems, { name: "Temporades", href: "/admin/seasons", icon: CalendarRange }]
+    : navItems;
+  const getNavHref = (href: string) => {
+    if (!seasonSelection) return href;
+    return `${href}?season=${encodeURIComponent(seasonSelection)}`;
+  };
 
   return (
     <>
@@ -41,12 +50,13 @@ export function NavbarClient({ isAdmin }: { isAdmin: boolean }) {
           </div>
           <div className="flex items-center gap-6">
             <div className="flex gap-6">
-              {navItems.map((item) => {
+              {visibleNavItems.map((item) => {
                 const isActive = pathname === item.href;
                 return (
                   <Link
                     key={item.href}
-                    href={item.href}
+                    href={getNavHref(item.href)}
+                    aria-current={isActive ? "page" : undefined}
                     className={cn(
                       "text-sm font-medium transition-colors hover:text-primary",
                       isActive ? "text-primary" : "text-muted-foreground"
@@ -66,8 +76,15 @@ export function NavbarClient({ isAdmin }: { isAdmin: boolean }) {
                 </Button>
               </form>
             ) : (
-              <Link href="/login">
-                <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-primary">
+              <Link
+                href="/login"
+                aria-current={pathname === "/login" ? "page" : undefined}
+              >
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-2 text-muted-foreground hover:text-primary"
+                >
                   <LogIn className="h-4 w-4" />
                   Entrar
                 </Button>
@@ -80,13 +97,14 @@ export function NavbarClient({ isAdmin }: { isAdmin: boolean }) {
       {/* Mobile Navigation (Bottom Bar) */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background/80 py-2 backdrop-blur-md md:hidden">
         <div className="flex items-center justify-around">
-          {navItems.map((item) => {
+          {visibleNavItems.map((item) => {
             const isActive = pathname === item.href;
             const Icon = item.icon;
             return (
               <Link
                 key={item.href}
-                href={item.href}
+                href={getNavHref(item.href)}
+                aria-current={isActive ? "page" : undefined}
                 className={cn(
                   "flex flex-col items-center gap-1 px-3 py-1 text-xs font-medium transition-colors",
                   isActive ? "text-primary font-bold" : "text-muted-foreground"
@@ -109,6 +127,7 @@ export function NavbarClient({ isAdmin }: { isAdmin: boolean }) {
           ) : (
             <Link
               href="/login"
+              aria-current={pathname === "/login" ? "page" : undefined}
               className={cn(
                 "flex flex-col items-center gap-1 px-3 py-1 text-xs font-medium transition-colors",
                 pathname === "/login" ? "text-primary font-bold" : "text-muted-foreground"

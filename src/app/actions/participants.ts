@@ -3,6 +3,8 @@
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/auth";
+import { getSeasonIdForSelection } from "@/lib/seasons";
+import type { SeasonSelection } from "@/lib/season-types";
 
 async function checkAuth() {
   const session = await getSession();
@@ -11,12 +13,14 @@ async function checkAuth() {
   }
 }
 
-export async function getParticipants() {
+export async function getParticipants(selection?: SeasonSelection) {
   try {
+    const seasonId = await getSeasonIdForSelection(selection);
     return await prisma.participant.findMany({
       orderBy: { name: "asc" },
       include: {
         sessions: {
+          ...(seasonId === undefined ? {} : { where: { seasonId } }),
           select: {
             id: true,
           },

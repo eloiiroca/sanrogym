@@ -40,10 +40,12 @@ export function DashboardClient({
   participants,
   monthlyData,
   monthlyRankings,
+  hasSeasonSessions,
 }: {
   participants: DashboardParticipant[];
   monthlyData: MonthlyData[];
   monthlyRankings: Record<string, MonthlyRankingData[]>;
+  hasSeasonSessions: boolean;
 }) {
   const availableMonths = useMemo(() => {
     return Object.keys(monthlyRankings).sort().reverse();
@@ -139,19 +141,23 @@ export function DashboardClient({
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xl font-bold">Rànquing Mensual</CardTitle>
             <div className="flex items-center gap-1">
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handlePrevMonth} disabled={selectedMonthIdx === availableMonths.length - 1}>
-                <ChevronLeft className="h-4 w-4" />
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handlePrevMonth} disabled={selectedMonthIdx === availableMonths.length - 1} aria-label="Mostra el mes anterior">
+                <ChevronLeft className="h-4 w-4" aria-hidden="true" />
               </Button>
               <span className="text-xs font-bold min-w-[70px] text-center">{displayMonthName}</span>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleNextMonth} disabled={selectedMonthIdx === 0}>
-                <ChevronRight className="h-4 w-4" />
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleNextMonth} disabled={selectedMonthIdx === 0} aria-label="Mostra el mes següent">
+                <ChevronRight className="h-4 w-4" aria-hidden="true" />
               </Button>
             </div>
           </CardHeader>
           <CardContent>
             <AnimatePresence mode="wait">
               <motion.div key={currentMonthKey} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} className="space-y-3">
-                {currentMonthlyRanking.map((p, idx) => {
+                {currentMonthlyRanking.length === 0 ? (
+                  <p className="py-4 text-center text-sm text-muted-foreground">
+                    No hi ha sessions registrades en aquest període.
+                  </p>
+                ) : currentMonthlyRanking.map((p, idx) => {
                   const isMVP = mvps.includes(p.id);
                   return (
                     <div key={p.id} className="flex items-center justify-between rounded-lg bg-zinc-900/50 p-3 relative overflow-hidden">
@@ -184,7 +190,9 @@ export function DashboardClient({
           <CardContent>
             <div className="space-y-3">
               {hotStreaks.length === 0 ? (
-                <p className="text-sm text-center text-muted-foreground py-4">Encara ningú està on fire!</p>
+                <p className="text-sm text-center text-muted-foreground py-4">
+                  {hasSeasonSessions ? "Encara no hi ha cap ratxa activa." : "Encara no hi ha sessions en aquesta temporada."}
+                </p>
               ) : (
                 hotStreaks.map((p, idx) => (
                   <motion.div key={p.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.05 }} className="flex items-center justify-between rounded-lg bg-zinc-900/50 p-3">
@@ -218,7 +226,9 @@ export function DashboardClient({
           <CardContent>
             <div className="space-y-3">
               {coldStreaks.length === 0 ? (
-                <p className="text-sm text-center text-muted-foreground py-4">Tothom està venint al gimnàs! 🏋️</p>
+                <p className="text-sm text-center text-muted-foreground py-4">
+                  {hasSeasonSessions ? "Tothom està venint al gimnàs! 🏋️" : "Encara no hi ha absències registrades."}
+                </p>
               ) : (
                 coldStreaks.map((p, idx) => (
                   <motion.div key={p.id} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.05 }} className="flex items-center justify-between rounded-lg bg-zinc-900/50 p-3">
@@ -229,8 +239,8 @@ export function DashboardClient({
                       </span>
                     </div>
                     <div className="flex flex-col items-end">
-                      <span className="text-xs font-bold text-blue-400">{p.coldStreak} sessions perdudes</span>
-                      <span className="text-[8px] text-muted-foreground uppercase tracking-tighter">És hora de tornar!</span>
+                      <span className="text-xs font-bold text-blue-400">{p.coldStreak} absències seguides</span>
+                      <span className="text-[8px] text-muted-foreground uppercase tracking-tighter">Quan puguis, torna-hi!</span>
                     </div>
                   </motion.div>
                 ))
