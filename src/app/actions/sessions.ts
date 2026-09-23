@@ -78,25 +78,41 @@ export async function createSession(date: Date, participantIds: string[]) {
 export async function updateSession(
   id: string,
   date: Date,
-  participantIds: string[]
+  participantIds: string[],
+  seasonId: number
 ) {
   try {
     await checkAuth();
-    const session = await prisma.session.update({
-      where: { id },
-      data: {
-        date: date,
-        participants: {
-          set: participantIds.map((id) => ({ id })),
+    if (!Number.isInteger(seasonId) || seasonId < 1) {
+      return { success: false, error: "La temporada no és vàlida." };
+    }
+
+    const session = await prisma.$transaction(async (tx) => {
+      const season = await tx.season.findUnique({
+        where: { id: seasonId },
+        select: { id: true },
+      });
+      if (!season) throw new Error("Season not found");
+
+      return tx.session.update({
+        where: { id },
+        data: {
+          date,
+          seasonId: season.id,
+          participants: {
+            set: participantIds.map((participantId) => ({ id: participantId })),
+          },
         },
-      },
-      include: {
-        participants: true,
-      },
+        include: {
+          participants: true,
+        },
+      });
     });
 
     revalidatePath("/sessions");
     revalidatePath("/");
+    revalidatePath("/roster");
+    revalidatePath("/admin/seasons");
     return { success: true, session };
   } catch (error) {
     console.error("Error updating session:", error);

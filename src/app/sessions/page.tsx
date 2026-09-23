@@ -34,6 +34,7 @@ export default async function SessionsPage({ searchParams }: SessionsPageProps) 
         isAdmin={isAdmin}
         activeSeasonName={seasonContext.activeSeason.name}
         seasonSelection={seasonContext.selection}
+        seasons={seasonContext.seasons}
       />
     </div>
   );

@@ -29,8 +29,18 @@ import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Edit2, Trash2, Plus, Dumbbell, Calendar } from "lucide-react";
+import {
+  Check,
+  ChevronDown,
+  Edit2,
+  Trash2,
+  Plus,
+  Dumbbell,
+  Calendar,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Select as SelectPrimitive } from "radix-ui";
+import type { SeasonOption } from "@/lib/season-types";
 
 interface Participant {
   id: string;
@@ -41,6 +51,7 @@ interface Session {
   id: string;
   sessionNumber: number;
   date: Date;
+  seasonId: number;
   participants: Participant[];
 }
 
@@ -59,12 +70,14 @@ export function SessionsClient({
   isAdmin,
   activeSeasonName,
   seasonSelection,
+  seasons,
 }: {
   sessions: Session[];
   participants: Participant[];
   isAdmin: boolean;
   activeSeasonName: string;
   seasonSelection: number | "all";
+  seasons: SeasonOption[];
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -72,6 +85,7 @@ export function SessionsClient({
   const [editSession, setEditSession] = useState<Session | null>(null);
   const [sessionToDelete, setSessionToDelete] = useState<Session | null>(null);
   const [date, setDate] = useState("");
+  const [selectedSeasonId, setSelectedSeasonId] = useState<number>(0);
   const [selectedParticipants, setSelectedParticipants] = useState<string[]>(
     []
   );
@@ -84,7 +98,12 @@ export function SessionsClient({
 
     startTransition(async () => {
       const result = editSession
-        ? await updateSession(editSession.id, new Date(date), selectedParticipants)
+        ? await updateSession(
+            editSession.id,
+            new Date(date),
+            selectedParticipants,
+            selectedSeasonId
+          )
         : await createSession(new Date(date), selectedParticipants);
       if (!result.success) {
         setFormError(result.error ?? "No s'ha pogut desar la sessió.");
@@ -97,6 +116,7 @@ export function SessionsClient({
           : undefined;
       setOpen(false);
       setDate("");
+      setSelectedSeasonId(0);
       setSelectedParticipants([]);
       setEditSession(null);
 
@@ -114,7 +134,9 @@ export function SessionsClient({
   const handleEdit = (s: Session) => {
     setEditSession(s);
     setDate(new Date(s.date).toISOString().split("T")[0]);
+    setSelectedSeasonId(s.seasonId);
     setSelectedParticipants(s.participants.map((p) => p.id));
+    setFormError(null);
     setOpen(true);
   };
 
@@ -148,6 +170,7 @@ export function SessionsClient({
               if (!v) {
                 setEditSession(null);
                 setDate("");
+                setSelectedSeasonId(0);
                 setSelectedParticipants([]);
                 setFormError(null);
               }
@@ -185,6 +208,59 @@ export function SessionsClient({
                     <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                   </div>
                 </div>
+
+                {editSession && (
+                  <div className="space-y-2">
+                    <Label htmlFor="session-season">Temporada</Label>
+                    <SelectPrimitive.Root
+                      value={String(selectedSeasonId)}
+                      onValueChange={(value) => setSelectedSeasonId(Number(value))}
+                    >
+                      <SelectPrimitive.Trigger
+                        id="session-season"
+                        className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background/50 px-3 text-sm font-medium text-foreground shadow-xs transition-colors hover:border-primary/40 focus-visible:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+                      >
+                        <SelectPrimitive.Value />
+                        <ChevronDown className="size-4 text-muted-foreground" aria-hidden="true" />
+                      </SelectPrimitive.Trigger>
+                      <SelectPrimitive.Portal>
+                        <SelectPrimitive.Content
+                          position="popper"
+                          align="start"
+                          sideOffset={4}
+                          className="z-[60] max-h-[min(18rem,var(--radix-select-content-available-height))] min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-lg border border-border/80 bg-popover/95 p-1 text-popover-foreground shadow-xl shadow-black/30 backdrop-blur-xl"
+                        >
+                          <SelectPrimitive.Viewport className="max-h-[min(18rem,var(--radix-select-content-available-height))]">
+                            {seasons.map((season) => (
+                              <SelectPrimitive.Item
+                                key={season.id}
+                                value={String(season.id)}
+                                className="flex min-h-10 cursor-pointer select-none items-center justify-between gap-3 rounded-md px-3 py-2 text-sm outline-none transition-colors data-[highlighted]:bg-primary/10 data-[highlighted]:text-foreground"
+                              >
+                                <SelectPrimitive.ItemText className="truncate font-medium">
+                                  {season.name}
+                                </SelectPrimitive.ItemText>
+                                <span className="flex shrink-0 items-center gap-2">
+                                  {season.isActive && (
+                                    <span className="rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider text-primary">
+                                      Activa
+                                    </span>
+                                  )}
+                                  <SelectPrimitive.ItemIndicator className="flex size-4 items-center justify-center text-primary">
+                                    <Check className="size-3.5" aria-hidden="true" />
+                                  </SelectPrimitive.ItemIndicator>
+                                </span>
+                              </SelectPrimitive.Item>
+                            ))}
+                          </SelectPrimitive.Viewport>
+                        </SelectPrimitive.Content>
+                      </SelectPrimitive.Portal>
+                    </SelectPrimitive.Root>
+                    <p className="text-xs text-muted-foreground">
+                      Canvia-la si la sessió està assignada a la temporada equivocada.
+                    </p>
+                  </div>
+                )}
 
                 <div className="space-y-3">
                   <Label>Assistents</Label>

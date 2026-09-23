@@ -65,7 +65,9 @@ export function DashboardClient({
 
   const currentMonthlyRanking = useMemo(() => {
     if (!currentMonthKey) return [];
-    return [...monthlyRankings[currentMonthKey]].sort((a, b) => b.count - a.count);
+    return [...monthlyRankings[currentMonthKey]]
+      .filter((participant) => participant.count > 0)
+      .sort((a, b) => b.count - a.count);
   }, [currentMonthKey, monthlyRankings]);
 
   const mvps = useMemo(() => {
@@ -77,16 +79,19 @@ export function DashboardClient({
       .map((p) => p.id);
   }, [currentMonthlyRanking]);
 
-  const leaderboard = [...participants].sort(
-    (a, b) => b.sessions.length - a.sessions.length
-  );
+  const leaderboard = [...participants]
+    .filter((participant) => participant.sessions.length > 0)
+    .sort((a, b) => b.sessions.length - a.sessions.length);
 
   const hotStreaks = [...participants]
     .filter(p => p.currentStreak > 0)
     .sort((a, b) => b.currentStreak - a.currentStreak);
 
   const coldStreaks = [...participants]
-    .filter(p => p.coldStreak > 0)
+    .filter(
+      (participant) =>
+        participant.sessions.length > 0 && participant.coldStreak > 0
+    )
     .sort((a, b) => b.coldStreak - a.coldStreak);
 
   const handlePrevMonth = () => {
@@ -155,7 +160,9 @@ export function DashboardClient({
               <motion.div key={currentMonthKey} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} className="space-y-3">
                 {currentMonthlyRanking.length === 0 ? (
                   <p className="py-4 text-center text-sm text-muted-foreground">
-                    No hi ha sessions registrades en aquest període.
+                    {currentMonthKey
+                      ? "Cap participant no ha assistit durant aquest període."
+                      : "No hi ha sessions registrades en aquest període."}
                   </p>
                 ) : currentMonthlyRanking.map((p, idx) => {
                   const isMVP = mvps.includes(p.id);
